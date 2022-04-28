@@ -46,7 +46,6 @@ outline = gpd.read_file('data_files/NI_outline.shp')
 towns = gpd.read_file('data_files/Towns.shp')
 water = gpd.read_file('data_files/Water.shp')
 rivers = gpd.read_file('data_files/Rivers.shp')
-counties = gpd.read_file('data_files/Counties.shp')
 
 # create a figure of size 10x10 (representing the page size in inches)
 myFig = plt.figure(figsize=(10, 10))
@@ -66,24 +65,6 @@ ax.add_feature(outline_feature) # add the features we've created to the map.
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives output as xmin, ymin, xmax, ymax,
 # but set_extent takes xmin, xmax, ymin, ymax, we re-order the coordinates here.
 
-# pick colors, add features to the map
-county_colors = ['firebrick', 'seagreen', 'royalblue', 'coral', 'violet', 'cornsilk']
-
-# get a list of unique names for the county boundaries
-county_names = list(counties.CountyName.unique())
-county_names.sort()  # sort the counties alphabetically by name
-
-# next, add the municipal outlines to the map using the colors that we've picked.
-# here, we're iterating over the list of names we created above
-# we're also setting the edge color to be black, with a line width of 0.5 pt.
-# Feel free to experiment with different colors and line widths.
-for i, name in enumerate(county_names):
-    feat = ShapelyFeature(counties['geometry'][counties['CountyName'] == name], myCRS,
-                          edgecolor='k',
-                          facecolor=county_colors[i],
-                          linewidth=1,
-                          alpha=0.25)
-    ax.add_feature(feat)
 
 # here, we're setting the edge color to be the same as the face color. Feel free to change this around,
 # and experiment with different line widths.
@@ -100,10 +81,7 @@ river_feat = ShapelyFeature(rivers['geometry'], myCRS,
 ax.add_feature(river_feat)
 
 # ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
-town_handle = ax.plot(towns.geometry.x, towns.geometry.y, 's', color='0.5', ms=6, transform=myCRS)
-
-# generate a list of handles for the county datasets
-county_handles = generate_handles(counties.CountyName.unique(), county_colors, alpha=0.25)
+#town_handle = ax.plot(towns.geometry.x, towns.geometry.y, 's', color='0.5', ms=4, transform=myCRS)
 
 # note: if you change the color you use to display lakes, you'll want to change it here, too
 water_handle = generate_handles(['Lakes'], ['mediumblue'])
@@ -111,12 +89,9 @@ water_handle = generate_handles(['Lakes'], ['mediumblue'])
 # note: if you change the color you use to display rivers, you'll want to change it here, too
 river_handle = [mlines.Line2D([], [], color='royalblue')]  # have to make this a list
 
-# update county_names to take it out of uppercase text
-nice_names = [name.title() for name in county_names]
-
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
-handles = county_handles + water_handle + river_handle + town_handle
-labels = nice_names + ['Lakes', 'Rivers', 'Towns']
+handles = water_handle + river_handle  
+labels = ['Lakes', 'Rivers'] 
 
 leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
                  fontsize=12, loc='upper left', frameon=True, framealpha=1)
@@ -132,7 +107,7 @@ ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
 # add the text labels for the towns
 for i, row in towns.iterrows():
     x, y = row.geometry.x, row.geometry.y
-    plt.text(x, y, row['TOWN_NAME'].title(), fontsize=8, transform=myCRS) # use plt.text to place a label at x,y
+    plt.text(x, y, row['TOWN_NAME'].title(), fontsize=7, transform=myCRS) # use plt.text to place a label at x,y
 
 scale_bar(ax)
 
