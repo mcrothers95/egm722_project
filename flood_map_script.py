@@ -5,6 +5,10 @@ from cartopy.feature import ShapelyFeature
 import cartopy.crs as ccrs
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
+import numpy as np
+import pandas as pd
+from shapely.geometry import Point
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 #This section contains code to create the base map which will be used to run analysis on input data 
@@ -80,9 +84,6 @@ river_feat = ShapelyFeature(rivers['geometry'], myCRS,
 
 ax.add_feature(river_feat)
 
-# ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
-#town_handle = ax.plot(towns.geometry.x, towns.geometry.y, 's', color='0.5', ms=4, transform=myCRS)
-
 # note: if you change the color you use to display lakes, you'll want to change it here, too
 water_handle = generate_handles(['Lakes'], ['mediumblue'])
 
@@ -110,5 +111,17 @@ for i, row in towns.iterrows():
     plt.text(x, y, row['TOWN_NAME'].title(), fontsize=7, transform=myCRS) # use plt.text to place a label at x,y
 
 scale_bar(ax)
+
+# ---------------------------------------------------------------------------------------------------------------------
+#This section contains code to create the base map which will be used to run analysis on input data 
+# ---------------------------------------------------------------------------------------------------------------------
+
+df = pd.read_csv("pointer-sample-data-2011.csv", delimiter=',', skiprows=0, low_memory=False)
+
+geometry = [Point(xy) for xy in zip(df['X_COR'], df['Y_COR'])]
+gdf = GeoDataFrame(df, geometry=geometry)
+
+# ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
+housing_stock = ax.plot(df.geometry.x, df.geometry.y, 's', color='0.5', ms=4, transform=myCRS)
 
 myFig.savefig('map.png', bbox_inches='tight', dpi=300)
