@@ -116,12 +116,15 @@ scale_bar(ax)
 #This section contains code to create the base map which will be used to run analysis on input data 
 # ---------------------------------------------------------------------------------------------------------------------
 
-df = pd.read_csv("pointer-sample-data-2011.csv", delimiter=',', skiprows=0, low_memory=False)
+data = pd.read_csv(r'pointer-sample-data-2011.csv', 'data')
 
-geometry = [Point(xy) for xy in zip(df['X_COR'], df['Y_COR'])]
-gdf = GeoDataFrame(df, geometry=geometry)
+geometry=[Point(xy) for xy in zip(data["X_COR"], data["Y_COR"])]
 
-# ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
-housing_stock = ax.plot(df.geometry.x, df.geometry.y, 's', color='0.5', ms=4, transform=myCRS)
+housing_stock=gpd.GeoDataFrame(data,crs=myCRS, geometry=geometry)
 
+housing_stock.plot(ax=ax, color='red', markersize=5)
+
+myFig.suptitle('Housing Stock Flood Map', fontsize=12)
+ax.set_xlabel('Longitude', fontsize=10)
+ax.set_ylabel('Latitude', fontsize='medium')
 myFig.savefig('map.png', bbox_inches='tight', dpi=300)
