@@ -84,14 +84,14 @@ ax.add_feature(river_feat)
 
 stock_data = pd.read_csv('pointer-sample-data-2011.csv') #user to input file path to their stock data csv
 stock_data
-stock_data['geometry']=list(zip(stock_data['ylat'], stock_data['xlong']))
+stock_data['geometry']=list(zip(stock_data['xlong'], stock_data['ylat']))
 print(stock_data)
 stock_data['geometry'] = stock_data['geometry'].apply(Point)
 
 housing_stock = gpd.GeoDataFrame(stock_data, crs="EPSG:32629")
 
 #housing_stock.set_crs("EPSG:32629", inplace=True)
-housing_stock_handle = ax.plot(housing_stock.ylat, housing_stock.xlong, 's', color='0.5', ms=20)
+housing_stock_handle = ax.plot(housing_stock.xlong, housing_stock.ylat,'s', color='0.5', ms=4, transform=myCRS)
 
 #stock_bounds=housing_stock.geometry.total_bounds
 #xmin, ymin, xmax, ymax = stock_bounds
