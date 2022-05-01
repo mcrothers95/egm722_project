@@ -56,22 +56,14 @@ myFig = plt.figure(figsize=(10, 10))
 
 myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
 
-ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator
-# projection, where we can actually plot our data.
+ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator projection, where we can actually plot our data.
 
-# first, we just add the outline of Northern Ireland using cartopy's ShapelyFeature
+# add the outline of Northern Ireland using cartopy's ShapelyFeature
 outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
 
-xmin, ymin, xmax, ymax = outline.total_bounds
-ax.add_feature(outline_feature) # add the features we've created to the map.
+ax.add_feature(outline_feature)
 
-# using the boundary of the shapefile features, zoom the map to our area of interest
-ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives output as xmin, ymin, xmax, ymax,
-# but set_extent takes xmin, xmax, ymin, ymax, we re-order the coordinates here.
-
-
-# here, we're setting the edge color to be the same as the face color. Feel free to change this around,
-# and experiment with different line widths.
+# setting the edge colour and the face color.
 water_feat = ShapelyFeature(water['geometry'], myCRS,
                             edgecolor='mediumblue',
                             facecolor='mediumblue',
@@ -94,11 +86,16 @@ stock_data['geometry']=list(zip(stock_data['lat'], stock_data['long']))
 
 stock_data['geometry'] = stock_data['geometry'].apply(Point)
 
+BBox = (stock_data.long.min(), stock_data.long.max(), stock_data.lat.min(), stock_data.lat.max())
 
 housing_stock = gpd.GeoDataFrame(stock_data)
 
-housing_stock.set_crs("EPSG:4326", inplace=True)
+housing_stock.set_crs("EPSG:3857", inplace=True)
 housing_stock_handle = ax.plot(housing_stock.lat, housing_stock.long, 's', color='0.5', ms=4, transform=myCRS)
+
+
+# using the boundary of the shapefile features, zoom the map to our area of interest
+ax.set_extent([BBox], crs=myCRS) 
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Script to build rest of map
@@ -121,7 +118,6 @@ gridlines = ax.gridlines(draw_labels=True,
 
 gridlines.left_labels = False
 gridlines.bottom_labels = False
-ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
 
 # add the text labels for the towns
 for i, row in towns.iterrows():
