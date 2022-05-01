@@ -84,15 +84,33 @@ river_feat = ShapelyFeature(rivers['geometry'], myCRS,
 
 ax.add_feature(river_feat)
 
-# note: if you change the color you use to display lakes, you'll want to change it here, too
+# ---------------------------------------------------------------------------------------------------------------------
+#This section contains code to add users housing stock data to the base map  
+# ---------------------------------------------------------------------------------------------------------------------
+
+stock_data = pd.read_csv('pointer-sample-data-2011.csv') #user to input file path to their stock data csv
+
+stock_data['geometry']=list(zip(stock_data['lat'], stock_data['long']))
+
+stock_data['geometry'] = stock_data['geometry'].apply(Point)
+
+
+housing_stock = gpd.GeoDataFrame(stock_data)
+
+housing_stock.set_crs("EPSG:4326", inplace=True)
+housing_stock_handle = ax.plot(housing_stock.lat, housing_stock.long, 's', color='0.5', ms=4, transform=myCRS)
+
+# ---------------------------------------------------------------------------------------------------------------------
+#Script to build rest of map
+# ---------------------------------------------------------------------------------------------------------------------
+
 water_handle = generate_handles(['Lakes'], ['mediumblue'])
 
-# note: if you change the color you use to display rivers, you'll want to change it here, too
-river_handle = [mlines.Line2D([], [], color='royalblue')]  # have to make this a list
+river_handle = [mlines.Line2D([], [], color='royalblue')] 
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
-handles = water_handle + river_handle  
-labels = ['Lakes', 'Rivers'] 
+handles = water_handle + river_handle + housing_stock_handle
+labels = ['Lakes', 'Rivers', 'Property'] 
 
 leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
                  fontsize=12, loc='upper left', frameon=True, framealpha=1)
@@ -112,21 +130,7 @@ for i, row in towns.iterrows():
 
 scale_bar(ax)
 
-# ---------------------------------------------------------------------------------------------------------------------
-#This section contains code to create the base map which will be used to run analysis on input data 
-# ---------------------------------------------------------------------------------------------------------------------
-
-df = pd.read_csv('pointer-sample-data-2011.csv')
-
-df['geometry']=list(zip(df['X_COR'], df['Y_COR']))
-
-df['geometry'] = df['geometry'].apply(Point)
-
-gdf = gpd.GeoDataFrame(df)
-
-gdf.set_crs(myCRS, inplace=True)
-
-#myFig.suptitle('Housing Stock Flood Map', fontsize=12)
-#ax.set_xlabel('Longitude', fontsize=10)
-#ax.set_ylabel('Latitude', fontsize='medium')
-#myFig.savefig('map.png', bbox_inches='tight', dpi=300)
+myFig.suptitle('Housing Stock Flood Map', fontsize=12)
+ax.set_xlabel('Longitude', fontsize=10)
+ax.set_ylabel('Latitude', fontsize='medium')
+myFig.savefig('map.png', bbox_inches='tight', dpi=300)
