@@ -116,15 +116,17 @@ scale_bar(ax)
 #This section contains code to create the base map which will be used to run analysis on input data 
 # ---------------------------------------------------------------------------------------------------------------------
 
-data = pd.read_csv(r'pointer-sample-data-2011.csv', 'data')
+df = pd.read_csv('pointer-sample-data-2011.csv')
 
-geometry=[Point(xy) for xy in zip(data["X_COR"], data["Y_COR"])]
+df['geometry']=list(zip(df['X_COR'], df['Y_COR']))
 
-housing_stock=gpd.GeoDataFrame(data,crs=myCRS, geometry=geometry)
+df['geometry'] = df['geometry'].apply(Point)
 
-housing_stock.plot(ax=ax, color='red', markersize=5)
+gdf = gpd.GeoDataFrame(df)
 
-myFig.suptitle('Housing Stock Flood Map', fontsize=12)
-ax.set_xlabel('Longitude', fontsize=10)
-ax.set_ylabel('Latitude', fontsize='medium')
-myFig.savefig('map.png', bbox_inches='tight', dpi=300)
+gdf.set_crs(myCRS, inplace=True)
+
+#myFig.suptitle('Housing Stock Flood Map', fontsize=12)
+#ax.set_xlabel('Longitude', fontsize=10)
+#ax.set_ylabel('Latitude', fontsize='medium')
+#myFig.savefig('map.png', bbox_inches='tight', dpi=300)
