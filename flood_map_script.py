@@ -8,7 +8,7 @@ import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
 from shapely.geometry import Point
-import contextily as cx
+import contextily as ctx
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -59,12 +59,10 @@ myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system 
 
 ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator projection, where we can actually plot our data.
 
-# add the outline of Northern Ireland using cartopy's ShapelyFeature
-outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
-#xmin, ymin, xmax, ymax = outline.total_bounds
-ax.add_feature(outline_feature)
 
-#ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
+# add the outline of Northern Ireland using cartopy's ShapelyFeature
+outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor="None")
+ax.add_feature(outline_feature)
 
 # setting the edge colour and the face color.
 water_feat = ShapelyFeature(water['geometry'], myCRS,
@@ -75,7 +73,8 @@ ax.add_feature(water_feat)
 
 river_feat = ShapelyFeature(rivers['geometry'], myCRS,
                             edgecolor='royalblue',
-                            linewidth=0.2)
+                            facecolor='None',
+                            linewidth=0.1)
 
 ax.add_feature(river_feat)
 
@@ -83,9 +82,9 @@ ax.add_feature(river_feat)
 #This section contains code to add users housing stock data to the base map  
 # ---------------------------------------------------------------------------------------------------------------------
 
-stock_data = pd.read_csv('pointer-sample-data-2011.csv') #user to input file path to their stock data csv
+stock_data = pd.read_csv('housing_stock.csv') #user to input file path to their stock data csv
 
-stock_data['geometry']=list(zip(stock_data['xlong'], stock_data['ylat']))
+stock_data['geometry']=list(zip(stock_data['xlong'], stock_data['ylat'])) #user to change attribute name according to csv
 #print(stock_data)
 stock_data['geometry'] = stock_data['geometry'].apply(Point)
 
@@ -94,13 +93,10 @@ housing_stock = gpd.GeoDataFrame(stock_data, crs="EPSG:32629")
 stock_bounds=housing_stock.geometry.total_bounds
 #print(stock_bounds)
 
-housing_stock_handle = ax.plot(housing_stock.xlong, housing_stock.ylat,'s', color='0.5', ms=4, transform=myCRS)
+housing_stock_handle = ax.plot(housing_stock.xlong, housing_stock.ylat,'o', color='0.5', ms=2, transform=myCRS)
 
 
 xmin, ymin, xmax, ymax = stock_bounds
-
-
-ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Script to build rest of map
@@ -130,6 +126,10 @@ for i, row in towns.iterrows():
     plt.text(x, y, row['TOWN_NAME'].title(), fontsize=7, transform=myCRS) # use plt.text to place a label at x,y
 
 scale_bar(ax)
+
+ctx.add_basemap(ax)
+
+ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
 
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
 ax.set_xlabel('Longitude', fontsize=10)
