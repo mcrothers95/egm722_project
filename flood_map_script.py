@@ -8,6 +8,7 @@ import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
 from shapely.geometry import Point
+import contextily as cx
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -133,4 +134,4 @@ scale_bar(ax)
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
 ax.set_xlabel('Longitude', fontsize=10)
 ax.set_ylabel('Latitude', fontsize='medium')
-myFig.savefig('map.png')
+myFig.savefig('map.png',  dpi=300)
