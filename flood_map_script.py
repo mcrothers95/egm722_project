@@ -93,16 +93,15 @@ housing_stock = gpd.GeoDataFrame(stock_data, crs="EPSG:32629")
 stock_bounds=housing_stock.geometry.total_bounds
 #print(stock_bounds)
 
-housing_stock_handle = ax.plot(housing_stock.xlong, housing_stock.ylat,'o', color='0.5', ms=2, transform=myCRS)
-
-
 xmin, ymin, xmax, ymax = stock_bounds
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Analysis of input stock data
 # ---------------------------------------------------------------------------------------------------------------------
+#print(rivers_buffer.crs == housing_stock.crs) #check same crs
+housing_stock_flood = gpd.sjoin(housing_stock, rivers_buffer, how='inner', lsuffix='left', rsuffix='right')
 
-
+housing_stock_handle = ax.plot(housing_stock_flood.xlong, housing_stock_flood.ylat,'o', color='0.5', ms=2, transform=myCRS)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
