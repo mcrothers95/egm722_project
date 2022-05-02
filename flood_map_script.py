@@ -7,7 +7,7 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
-from shapely.geometry import Point
+from shapely.geometry import Point, LineString, Polygon
 import contextily as ctx
 
 
@@ -74,7 +74,7 @@ ax.add_feature(water_feat)
 river_feat = ShapelyFeature(rivers['geometry'], myCRS,
                             edgecolor='royalblue',
                             facecolor='None',
-                            linewidth=0.1)
+                            linewidth=0.3)
 
 ax.add_feature(river_feat)
 
@@ -97,6 +97,14 @@ housing_stock_handle = ax.plot(housing_stock.xlong, housing_stock.ylat,'o', colo
 
 
 xmin, ymin, xmax, ymax = stock_bounds
+
+# ---------------------------------------------------------------------------------------------------------------------
+#Analysis of input stock data
+# ---------------------------------------------------------------------------------------------------------------------
+buffer_50=river_feat.buffer(50)
+
+
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Script to build rest of map
@@ -131,6 +139,10 @@ scale_bar(ax)
 ctx.add_basemap(ax)
 
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
+
+# ---------------------------------------------------------------------------------------------------------------------
+#Map Output
+# ---------------------------------------------------------------------------------------------------------------------
 
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
 ax.set_xlabel('Longitude', fontsize=10)
