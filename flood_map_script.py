@@ -60,10 +60,10 @@ ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in t
 
 # add the outline of Northern Ireland using cartopy's ShapelyFeature
 outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
-xmin, ymin, xmax, ymax = outline.total_bounds
+#xmin, ymin, xmax, ymax = outline.total_bounds
 ax.add_feature(outline_feature)
 
-ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
+#ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
 
 # setting the edge colour and the face color.
 water_feat = ShapelyFeature(water['geometry'], myCRS,
@@ -83,32 +83,23 @@ ax.add_feature(river_feat)
 # ---------------------------------------------------------------------------------------------------------------------
 
 stock_data = pd.read_csv('pointer-sample-data-2011.csv') #user to input file path to their stock data csv
-stock_data
+
 stock_data['geometry']=list(zip(stock_data['xlong'], stock_data['ylat']))
-print(stock_data)
+#print(stock_data)
 stock_data['geometry'] = stock_data['geometry'].apply(Point)
 
 housing_stock = gpd.GeoDataFrame(stock_data, crs="EPSG:32629")
 
-#housing_stock.set_crs("EPSG:32629", inplace=True)
+stock_bounds=housing_stock.geometry.total_bounds
+#print(stock_bounds)
+
 housing_stock_handle = ax.plot(housing_stock.xlong, housing_stock.ylat,'s', color='0.5', ms=4, transform=myCRS)
 
-#stock_bounds=housing_stock.geometry.total_bounds
-#xmin, ymin, xmax, ymax = stock_bounds
 
-#xmin=housing_stock.xlong.min()
-#ymin=housing_stock.ylat.min()
-#xmax=housing_stock.xlong.max()
-#ymax=housing_stock.ylat.max()
-#BBox = (housing_stock.lat.min(), housing_stock.lat.max(), housing_stock.long.min(), housing_stock.long.max())
+xmin, ymin, xmax, ymax = stock_bounds
 
-# using the boundary of the shapefile features, zoom the map to our area of interest
-#xlim = ([stock_bounds.total_bounds[0],  stock_bounds.total_bounds[2]])
-#ylim = ([stock_bounds.total_bounds[1],  stock_bounds.total_bounds[3]])
 
-#ax.set_xlim(xlim)
-#ax.set_ylim(ylim)
-#ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
+ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Script to build rest of map
@@ -142,4 +133,4 @@ scale_bar(ax)
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
 ax.set_xlabel('Longitude', fontsize=10)
 ax.set_ylabel('Latitude', fontsize='medium')
-myFig.savefig('map.png', bbox_inches='tight', dpi=300)
+myFig.savefig('map.png')
