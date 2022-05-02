@@ -51,7 +51,7 @@ outline = gpd.read_file('data_files/NI_outline.shp')
 towns = gpd.read_file('data_files/Towns.shp')
 water = gpd.read_file('data_files/Water.shp')
 rivers = gpd.read_file('data_files/Rivers.shp')
-
+rivers_buffer = gpd.read_file('data_files/Rivers_buffer.shp')
 # create a figure of size 10x10 (representing the page size in inches)
 myFig = plt.figure(figsize=(10, 10))
 
@@ -101,7 +101,6 @@ xmin, ymin, xmax, ymax = stock_bounds
 # ---------------------------------------------------------------------------------------------------------------------
 #Analysis of input stock data
 # ---------------------------------------------------------------------------------------------------------------------
-buffer_50=river_feat.buffer(50)
 
 
 
