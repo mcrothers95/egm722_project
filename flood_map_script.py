@@ -121,9 +121,10 @@ gridlines.left_labels = False
 gridlines.bottom_labels = False
 
 # add the text labels for the towns
-for i, row in towns.iterrows():
+inds = towns.to_crs(epsg="32629").cx[xmin:xmax, ymin:ymax].index
+for i, row in towns.loc[inds].iterrows():
     x, y = row.geometry.x, row.geometry.y
-    plt.text(x, y, row['TOWN_NAME'].title(), fontsize=7, transform=myCRS) # use plt.text to place a label at x,y
+    plt.text(x, y, row['TOWN_NAME'].title(), fontsize=7, transform=myCRS,clip_on=True) # use plt.text to place a label at x,y
 
 scale_bar(ax)
 
