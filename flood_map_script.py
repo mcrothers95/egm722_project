@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import Point, LineString, Polygon
 import contextily as ctx
-
+from matplotlib_scalebar.scalebar import ScaleBar 
 
 # ---------------------------------------------------------------------------------------------------------------------
 #This section contains code to create the base map which will be used to run analysis on input data 
@@ -23,29 +23,6 @@ def generate_handles(labels, colors, edge='k', alpha=1):
         handles.append(mpatches.Rectangle((0, 0), 1, 1, facecolor=colors[i % lc], edgecolor=edge, alpha=alpha))
     return handles
 
-
-# create a scale bar of length 20 km in the upper right corner of the map
-# adapted this question: https://stackoverflow.com/q/32333870
-# answered by SO user Siyh: https://stackoverflow.com/a/35705477
-def scale_bar(ax, location=(0.92, 0.95)):
-    llx0, llx1, lly0, lly1 = ax.get_extent(ccrs.PlateCarree())
-    sbllx = (llx1 + llx0) / 2
-    sblly = lly0 + (lly1 - lly0) * location[1]
-
-    tmc = ccrs.TransverseMercator(sbllx, sblly)
-    x0, x1, y0, y1 = ax.get_extent(tmc)
-    sbx = x0 + (x1 - x0) * location[0]
-    sby = y0 + (y1 - y0) * location[1]
-
-    plt.plot([sbx, sbx - 20000], [sby, sby], color='k', linewidth=9, transform=tmc)
-    plt.plot([sbx, sbx - 10000], [sby, sby], color='k', linewidth=6, transform=tmc)
-    plt.plot([sbx-10000, sbx - 20000], [sby, sby], color='w', linewidth=6, transform=tmc)
-
-    plt.text(sbx, sby-4500, '20 km', transform=tmc, fontsize=8)
-    plt.text(sbx-12500, sby-4500, '10 km', transform=tmc, fontsize=8)
-    plt.text(sbx-24500, sby-4500, '0 km', transform=tmc, fontsize=8)
-
-
 # load the datasets
 outline = gpd.read_file('data_files/NI_outline.shp')
 towns = gpd.read_file('data_files/Towns.shp')
@@ -53,7 +30,7 @@ water = gpd.read_file('data_files/Water.shp')
 rivers = gpd.read_file('data_files/Rivers.shp')
 rivers_buffer = gpd.read_file('data_files/Rivers_buffer.shp')
 # create a figure of size 10x10 (representing the page size in inches)
-myFig = plt.figure(figsize=(10, 10))
+myFig = plt.figure(figsize=(11.69, 8.27)) #landscape A4
 
 myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
 
@@ -104,18 +81,16 @@ housing_stock_flood = gpd.sjoin(housing_stock, rivers_buffer, how='inner', lsuff
 
 #split layer by flood value
 house_50=housing_stock_flood[housing_stock_flood.buff == 50]
-print(house_50)
+#print(house_50)
 house_100=housing_stock_flood[housing_stock_flood.buff == 100]
 house_250=housing_stock_flood[housing_stock_flood.buff == 250]
 house_null=housing_stock_flood[housing_stock_flood.buff == 0]
 
 #Plot each flood risk bracket
-housing_stock_high = ax.plot(house_50.xlong, house_50.ylat,'o', color='red', ms=2, transform=myCRS)
-housing_stock_med = ax.plot(house_100.xlong, house_100.ylat,'o', color='orange', ms=2, transform=myCRS)
-housing_stock_low = ax.plot(house_250.xlong, house_250.ylat,'o', color='yellow', ms=2, transform=myCRS)
-housing_stock_none = ax.plot(house_null.xlong, house_null.ylat,'o', color='green', ms=2, transform=myCRS)
-#housing_stock_handle = ax.plot(housing_stock_flood.xlong, housing_stock_flood.ylat,'o', color='0.5', ms=2, transform=myCRS)
-
+housing_stock_high = ax.plot(house_50.xlong, house_50.ylat,'o', markerfacecolor='red', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
+housing_stock_med = ax.plot(house_100.xlong, house_100.ylat,'o', markerfacecolor='orange', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
+housing_stock_low = ax.plot(house_250.xlong, house_250.ylat,'o', markerfacecolor='yellow', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
+housing_stock_none = ax.plot(house_null.xlong, house_null.ylat,'o', markerfacecolor='green', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Script to build rest of map
@@ -130,14 +105,14 @@ handles = water_handle + river_handle + housing_stock_high + housing_stock_med +
 labels = ['Lakes', 'Rivers', 'High Risk Property', 'Medium Risk Property', 'Low Risk Property', 'No Risk Property'] 
 
 leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
-                 fontsize=12, loc='upper left', frameon=True, framealpha=1)
+                 fontsize=12, bbox_to_anchor=(1.04,1), borderaxespad=0, frameon=True, framealpha=1)
 
-gridlines = ax.gridlines(draw_labels=True,
-                         xlocs=[-8, -7.5, -7, -6.5, -6, -5.5],
-                         ylocs=[54, 54.5, 55, 55.5])
+#gridlines = ax.gridlines(draw_labels=True,
+                         #xlocs=[-8, -7.5, -7, -6.5, -6, -5.5],
+                        # ylocs=[54, 54.5, 55, 55.5])
 
-gridlines.left_labels = False
-gridlines.bottom_labels = False
+#gridlines.left_labels = False
+#gridlines.bottom_labels = False
 
 # add the text labels for the towns
 inds = towns.to_crs(epsg="32629").cx[xmin:xmax, ymin:ymax].index
@@ -145,11 +120,12 @@ for i, row in towns.loc[inds].iterrows():
     x, y = row.geometry.x, row.geometry.y
     plt.text(x, y, row['TOWN_NAME'].title(), fontsize=7, transform=myCRS,clip_on=True) # use plt.text to place a label at x,y
 
-scale_bar(ax)
-
-ctx.add_basemap(ax)
+#add scalebar
+ax.add_artist(ScaleBar(1))
 
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
+
+ctx.add_basemap(ax, zoom=12)
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Map Output
@@ -158,4 +134,4 @@ ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
 ax.set_xlabel('Longitude', fontsize=10)
 ax.set_ylabel('Latitude', fontsize='medium')
-myFig.savefig('map.png',  dpi=300)
+myFig.savefig('map.png', bbox_inches="tight")
