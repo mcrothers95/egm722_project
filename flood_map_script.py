@@ -100,8 +100,21 @@ xmin, ymin, xmax, ymax = stock_bounds
 # ---------------------------------------------------------------------------------------------------------------------
 #print(rivers_buffer.crs == housing_stock.crs) #check same crs
 housing_stock_flood = gpd.sjoin(housing_stock, rivers_buffer, how='inner', lsuffix='left', rsuffix='right')
+#print(housing_stock_flood) #check join data
 
-housing_stock_handle = ax.plot(housing_stock_flood.xlong, housing_stock_flood.ylat,'o', color='0.5', ms=2, transform=myCRS)
+#split layer by flood value
+house_50=housing_stock_flood[housing_stock_flood.buff == 50]
+print(house_50)
+house_100=housing_stock_flood[housing_stock_flood.buff == 100]
+house_250=housing_stock_flood[housing_stock_flood.buff == 250]
+house_null=housing_stock_flood[housing_stock_flood.buff == 0]
+
+#Plot each flood risk bracket
+housing_stock_high = ax.plot(house_50.xlong, house_50.ylat,'o', color='red', ms=2, transform=myCRS)
+housing_stock_med = ax.plot(house_100.xlong, house_100.ylat,'o', color='orange', ms=2, transform=myCRS)
+housing_stock_low = ax.plot(house_250.xlong, house_250.ylat,'o', color='yellow', ms=2, transform=myCRS)
+housing_stock_none = ax.plot(house_null.xlong, house_null.ylat,'o', color='green', ms=2, transform=myCRS)
+#housing_stock_handle = ax.plot(housing_stock_flood.xlong, housing_stock_flood.ylat,'o', color='0.5', ms=2, transform=myCRS)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -113,8 +126,8 @@ water_handle = generate_handles(['Lakes'], ['mediumblue'])
 river_handle = [mlines.Line2D([], [], color='royalblue')] 
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
-handles = water_handle + river_handle + housing_stock_handle
-labels = ['Lakes', 'Rivers', 'Property'] 
+handles = water_handle + river_handle + housing_stock_high + housing_stock_med + housing_stock_low +housing_stock_none
+labels = ['Lakes', 'Rivers', 'High Risk Property', 'Medium Risk Property', 'Low Risk Property', 'No Risk Property'] 
 
 leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
                  fontsize=12, loc='upper left', frameon=True, framealpha=1)
