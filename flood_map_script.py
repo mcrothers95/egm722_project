@@ -10,6 +10,7 @@ import pandas as pd
 from shapely.geometry import Point, LineString, Polygon
 import contextily as ctx
 from matplotlib_scalebar.scalebar import ScaleBar 
+import csv
 
 # ---------------------------------------------------------------------------------------------------------------------
 #This section contains code to create the base map which will be used to run analysis on input data 
@@ -136,4 +137,15 @@ ax.set_xlabel('Longitude', fontsize=10)
 ax.set_ylabel('Latitude', fontsize='medium')
 myFig.savefig('map.png', bbox_inches="tight", dpi=500)
 
-np.savetxt('housing_stock_flood_data.csv', housing_stock_flood, delimiter=",", fmt="%s",)
+#print(housing_stock_flood.columns.values)
+#fields = [housing_stock_flood.columns]
+#rows =[housing_stock_flood]
+#filename = "housing_stock_flood_data.csv"
+#print(rows)
+
+#with open(filename, 'w') as csvfile: 
+   # csvwriter = csv.writer(csvfile) 
+    #csvwriter.writerow(fields)
+    #csvwriter.writerows(rows, delimiter=",", fmt="%s") 
+
+np.savetxt('housing_stock_flood_data.csv', housing_stock_flood, delimiter=",", fmt="%s")
