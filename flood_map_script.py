@@ -33,9 +33,7 @@ rivers_buffer = gpd.read_file('data_files/Rivers_buffer.shp')
 myFig = plt.figure(figsize=(11.69, 8.27)) #landscape A4
 
 myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
-
-ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator projection, where we can actually plot our data.
-
+ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator projection.
 
 # add the outline of Northern Ireland using cartopy's ShapelyFeature
 outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor="None")
@@ -107,12 +105,7 @@ labels = ['Lakes', 'Rivers', 'High Risk Property', 'Medium Risk Property', 'Low 
 leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
                  fontsize=12, bbox_to_anchor=(1.04,1), borderaxespad=0, frameon=True, framealpha=1)
 
-#gridlines = ax.gridlines(draw_labels=True,
-                         #xlocs=[-8, -7.5, -7, -6.5, -6, -5.5],
-                        # ylocs=[54, 54.5, 55, 55.5])
 
-#gridlines.left_labels = False
-#gridlines.bottom_labels = False
 
 # add the text labels for the towns
 inds = towns.to_crs(epsg="32629").cx[xmin:xmax, ymin:ymax].index
@@ -125,6 +118,13 @@ ax.add_artist(ScaleBar(1))
 
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
 
+#gridlines = ax.gridlines(draw_labels=True,
+                        #locs=[-8, -7.75, -7.5, -7.25, -7, -6.75, -6.5, -6.25, -6, -5.75, -5.5],
+                        #ylocs=[54, 54.25, 54.5, 54.75, 55, 55.25, 55.5, 55.75])
+
+#gridlines.left_labels = False
+#gridlines.bottom_labels = False
+
 ctx.add_basemap(ax, zoom=12)
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -134,4 +134,6 @@ ctx.add_basemap(ax, zoom=12)
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
 ax.set_xlabel('Longitude', fontsize=10)
 ax.set_ylabel('Latitude', fontsize='medium')
-myFig.savefig('map.png', bbox_inches="tight")
+myFig.savefig('map.png', bbox_inches="tight", dpi=500)
+
+np.savetxt('housing_stock_flood_data.csv', housing_stock_flood, delimiter=",", fmt="%s",)
