@@ -7,10 +7,12 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
-from shapely.geometry import Point, LineString, Polygon
+from shapely.geometry import Point
 import contextily as ctx
 from matplotlib_scalebar.scalebar import ScaleBar 
 import csv
+
+plt.ion() # make the plotting interactive
 
 # ---------------------------------------------------------------------------------------------------------------------
 #This section contains code to create the base map which will be used to run analysis on input data 
@@ -30,8 +32,10 @@ towns = gpd.read_file('data_files/Towns.shp')
 water = gpd.read_file('data_files/Water.shp')
 rivers = gpd.read_file('data_files/Rivers.shp')
 rivers_buffer = gpd.read_file('data_files/Rivers_buffer.shp')
-# create a figure of size 10x10 (representing the page size in inches)
-myFig = plt.figure(figsize=(11.69, 8.27)) #landscape A4
+
+# create a figure of size 11.69, 8.27(representing the page size in inches - size of A4 landscape) 
+# can be changed to suit needs
+myFig = plt.figure(figsize=(11.69, 8.27)) 
 
 myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
 ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator projection.
@@ -80,7 +84,6 @@ housing_stock_flood = gpd.sjoin(housing_stock, rivers_buffer, how='inner', lsuff
 
 #split layer by flood value
 house_50=housing_stock_flood[housing_stock_flood.buff == 50]
-#print(house_50)
 house_100=housing_stock_flood[housing_stock_flood.buff == 100]
 house_250=housing_stock_flood[housing_stock_flood.buff == 250]
 house_null=housing_stock_flood[housing_stock_flood.buff == 0]
