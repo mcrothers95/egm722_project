@@ -1,4 +1,5 @@
 #import modules needed for script
+from itertools import count
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from cartopy.feature import ShapelyFeature
@@ -132,13 +133,17 @@ ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
 ctx.add_basemap(ax, zoom=12)
 
 # ---------------------------------------------------------------------------------------------------------------------
-#Map Output
+#Map Output image
 # ---------------------------------------------------------------------------------------------------------------------
 
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
 ax.set_xlabel('Longitude', fontsize=10)
 ax.set_ylabel('Latitude', fontsize='medium')
 myFig.savefig('map.png', bbox_inches="tight", dpi=500)
+
+# ---------------------------------------------------------------------------------------------------------------------
+#Stock data csv output
+# ---------------------------------------------------------------------------------------------------------------------
 
 #print(housing_stock_flood.columns.values)
 #fields = [housing_stock_flood.columns]
@@ -152,3 +157,29 @@ myFig.savefig('map.png', bbox_inches="tight", dpi=500)
     #csvwriter.writerows(rows, delimiter=",", fmt="%s") 
 
 np.savetxt('housing_stock_flood_data.csv', housing_stock_flood, delimiter=",", fmt="%s")
+
+# ---------------------------------------------------------------------------------------------------------------------
+#Stock data bar graph output
+# ---------------------------------------------------------------------------------------------------------------------
+
+df1=housing_stock_flood
+# Count number of each risk element in df
+N1, N2, N3, N4 = len(df1[df1['risk'] == 'High Risk']), len(df1[df1['risk'] == 'Medium Risk']), len(df1[df1['risk'] == 'Low Risk']), len(df1[df1['risk'] == 'No Risk'])
+width = 0.125
+New_Colors = ['red','orange','yellow','green']
+# Plot the lengths in x positions [High Risk, Medium Risk, Low Risk, No Risk]
+plt.bar(['High Risk', 'Medium Risk', 'Low Risk', 'No Risk'], [N1, N2, N3, N4], width, color=New_Colors)
+fig1 = plt.gcf()
+plt.title('Housing Stock Flood Risk', fontsize=14)
+plt.xlabel('Flood Risk', fontsize=14)
+plt.ylabel('Number of Properties', fontsize=14)
+plt.grid(True)
+plt.savefig('stock risk graph.png')
+
+#New_Colors = ['red','orange','yellow','green']
+#plt.bar(housing_stock_flood['risk'],color=New_Colors)
+#plt.title('Housing Stock Flood Risk', fontsize=14)
+#plt.xlabel('Flood Risk', fontsize=14)
+#plt.ylabel('Number of Properties', fontsize=14)
+#plt.grid(True)
+#plt.savefig('stock risk graph.png')
