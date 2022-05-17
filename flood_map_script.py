@@ -52,9 +52,9 @@ water_feat = ShapelyFeature(water['geometry'], myCRS,
 ax.add_feature(water_feat)
 
 river_feat = ShapelyFeature(rivers['geometry'], myCRS,
-                            edgecolor='royalblue',
+                            edgecolor='darkblue',
                             facecolor='None',
-                            linewidth=0.3)
+                            linewidth=0.7)
 
 ax.add_feature(river_feat)
 
@@ -100,7 +100,7 @@ housing_stock_none = ax.plot(house_null.xlong, house_null.ylat,'o', markerfaceco
 
 water_handle = generate_handles(['Lakes'], ['mediumblue'])
 
-river_handle = [mlines.Line2D([], [], color='royalblue')] 
+river_handle = [mlines.Line2D([], [], color='darkblue')] 
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects to add to the legend
 handles = water_handle + river_handle + housing_stock_high + housing_stock_med + housing_stock_low +housing_stock_none
