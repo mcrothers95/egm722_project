@@ -46,8 +46,8 @@ ax.add_feature(outline_feature)
 
 # setting the edge colour and the face color.
 water_feat = ShapelyFeature(water['geometry'], myCRS,
-                            edgecolor='mediumblue',
-                            facecolor='mediumblue',
+                            edgecolor='blue',
+                            facecolor='blue',
                             linewidth=1)
 ax.add_feature(water_feat)
 
@@ -98,7 +98,7 @@ housing_stock_none = ax.plot(house_null.xlong, house_null.ylat,'o', markerfaceco
 #Script to build rest of map
 # ---------------------------------------------------------------------------------------------------------------------
 
-water_handle = generate_handles(['Lakes'], ['mediumblue'])
+water_handle = generate_handles(['Lakes'], ['blue'])
 
 river_handle = [mlines.Line2D([], [], color='darkblue')] 
 
