@@ -13,7 +13,7 @@ import contextily as ctx
 from matplotlib_scalebar.scalebar import ScaleBar 
 import csv
 
-plt.ion() # make the plotting interactive
+#plt.ion() # make the plotting interactive
 
 # ---------------------------------------------------------------------------------------------------------------------
 #This section contains code to create the base map which will be used to run analysis on input data 
@@ -39,25 +39,25 @@ rivers_buffer = gpd.read_file('data_files/Rivers_buffer.shp')
 myFig = plt.figure(figsize=(11.69, 8.27)) 
 
 myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
-ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator projection.
+ax1 = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator projection.
 
 # add the outline of Northern Ireland using cartopy's ShapelyFeature
 outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor="None")
-ax.add_feature(outline_feature)
+ax1.add_feature(outline_feature)
 
 # setting the edge colour and the face color.
 water_feat = ShapelyFeature(water['geometry'], myCRS,
                             edgecolor='mediumblue',
                             facecolor='mediumblue',
                             linewidth=1)
-ax.add_feature(water_feat)
+ax1.add_feature(water_feat)
 
 river_feat = ShapelyFeature(rivers['geometry'], myCRS,
                             edgecolor='royalblue',
                             facecolor='None',
                             linewidth=0.3)
 
-ax.add_feature(river_feat)
+ax1.add_feature(river_feat)
 
 # ---------------------------------------------------------------------------------------------------------------------
 #This section contains code to add users housing stock data to the base map  
@@ -90,10 +90,10 @@ house_250=housing_stock_flood[housing_stock_flood.buff == 250]
 house_null=housing_stock_flood[housing_stock_flood.buff == 0]
 
 #Plot each flood risk bracket
-housing_stock_high = ax.plot(house_50.xlong, house_50.ylat,'o', markerfacecolor='red', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
-housing_stock_med = ax.plot(house_100.xlong, house_100.ylat,'o', markerfacecolor='orange', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
-housing_stock_low = ax.plot(house_250.xlong, house_250.ylat,'o', markerfacecolor='yellow', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
-housing_stock_none = ax.plot(house_null.xlong, house_null.ylat,'o', markerfacecolor='green', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
+housing_stock_high = ax1.plot(house_50.xlong, house_50.ylat,'o', markerfacecolor='red', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
+housing_stock_med = ax1.plot(house_100.xlong, house_100.ylat,'o', markerfacecolor='orange', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
+housing_stock_low = ax1.plot(house_250.xlong, house_250.ylat,'o', markerfacecolor='yellow', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
+housing_stock_none = ax1.plot(house_null.xlong, house_null.ylat,'o', markerfacecolor='green', markeredgecolor='black', markeredgewidth=0.4, ms=2, transform=myCRS)
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Script to build rest of map
@@ -107,7 +107,7 @@ river_handle = [mlines.Line2D([], [], color='royalblue')]
 handles = water_handle + river_handle + housing_stock_high + housing_stock_med + housing_stock_low +housing_stock_none
 labels = ['Lakes', 'Rivers', 'High Risk Property', 'Medium Risk Property', 'Low Risk Property', 'No Risk Property'] 
 
-leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
+leg = ax1.legend(handles, labels, title='Legend', title_fontsize=14,
                  fontsize=12, bbox_to_anchor=(1.04,1), borderaxespad=0, frameon=True, framealpha=1)
 
 
@@ -119,9 +119,9 @@ for i, row in towns.loc[inds].iterrows():
     plt.text(x, y, row['TOWN_NAME'].title(), fontsize=7, transform=myCRS,clip_on=True) # use plt.text to place a label at x,y
 
 #add scalebar
-ax.add_artist(ScaleBar(1))
+ax1.add_artist(ScaleBar(1))
 
-ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
+ax1.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) 
 
 #gridlines = ax.gridlines(draw_labels=True,
                         #locs=[-8, -7.75, -7.5, -7.25, -7, -6.75, -6.5, -6.25, -6, -5.75, -5.5],
@@ -130,16 +130,17 @@ ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
 #gridlines.left_labels = False
 #gridlines.bottom_labels = False
 
-ctx.add_basemap(ax, zoom=12)
+ctx.add_basemap(ax1, zoom=12)
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Map Output image
 # ---------------------------------------------------------------------------------------------------------------------
 
 myFig.suptitle('Housing Stock Flood Map', fontsize=12)
-ax.set_xlabel('Longitude', fontsize=10)
-ax.set_ylabel('Latitude', fontsize='medium')
+ax1.set_xlabel('Longitude', fontsize=10)
+ax1.set_ylabel('Latitude', fontsize='medium')
 myFig.savefig('map.png', bbox_inches="tight", dpi=500)
+plt.close(myFig)
 
 # ---------------------------------------------------------------------------------------------------------------------
 #Stock data csv output
@@ -161,20 +162,20 @@ np.savetxt('housing_stock_flood_data.csv', housing_stock_flood, delimiter=",", f
 # ---------------------------------------------------------------------------------------------------------------------
 #Stock data bar graph output
 # ---------------------------------------------------------------------------------------------------------------------
-
-df1=housing_stock_flood
+Data = gpd.sjoin(housing_stock, rivers_buffer, how='inner', lsuffix='left', rsuffix='right')
+df1 = pd.DataFrame(Data,columns=['risk'])
 # Count number of each risk element in df
 N1, N2, N3, N4 = len(df1[df1['risk'] == 'High Risk']), len(df1[df1['risk'] == 'Medium Risk']), len(df1[df1['risk'] == 'Low Risk']), len(df1[df1['risk'] == 'No Risk'])
 width = 0.125
 New_Colors = ['red','orange','yellow','green']
+
 # Plot the lengths in x positions [High Risk, Medium Risk, Low Risk, No Risk]
 plt.bar(['High Risk', 'Medium Risk', 'Low Risk', 'No Risk'], [N1, N2, N3, N4], width, color=New_Colors)
-fig1 = plt.gcf()
-plt.title('Housing Stock Flood Risk', fontsize=14)
+plt.title('Flood Risk Summary', fontsize=14)
 plt.xlabel('Flood Risk', fontsize=14)
 plt.ylabel('Number of Properties', fontsize=14)
 plt.grid(True)
-plt.savefig('stock risk graph.png')
+plt.savefig('Flood Risk Summary Graph.png')
 
 #New_Colors = ['red','orange','yellow','green']
 #plt.bar(housing_stock_flood['risk'],color=New_Colors)
