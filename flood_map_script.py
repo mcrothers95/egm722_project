@@ -20,6 +20,8 @@ plt.ion() # make the plotting interactive
 
 # generate matplotlib handles to create a legend of the features we put in our map.
 def generate_handles(labels, colors, edge='k', alpha=1):
+    ''' Returns a list of matplotlib handles from ShapelyFeatures, given a list of labels and colors.
+     Displays within bounding box on output figure.'''
     lc = len(colors)  # get the length of the color list
     handles = []
     for i in range(len(labels)):
